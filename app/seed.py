@@ -1,18 +1,19 @@
-﻿from app.db.session import Base, engine
-from datetime import datetime
-from app.db.session import SessionLocal
+﻿from app.db.session import Base, engine, SessionLocal
+from app.core.security import hash_password
+
+import app.models
+
 from app.models.user import User
 from app.models.team import Team
 from app.models.idea import Idea
 from app.models.task import Task
-from app.core.security import hash_password
+
 
 def run_seed():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
     try:
-
         admin = db.query(User).filter_by(email="admin@example.com").first()
         if not admin:
             admin = User(
@@ -44,7 +45,6 @@ def run_seed():
 
             teams.append(team)
 
-
         sample_idea = db.query(Idea).first()
         if not sample_idea:
             sample_idea = Idea(
@@ -56,6 +56,7 @@ def run_seed():
             )
             db.add(sample_idea)
             db.commit()
+            db.refresh(sample_idea)
             print("[+] Sample idea created")
         else:
             print("[=] Sample idea already exists")
@@ -77,10 +78,8 @@ def run_seed():
 
         print("\n Seed completed successfully.")
 
-
     finally:
         db.close()
-
 
 
 if __name__ == "__main__":
